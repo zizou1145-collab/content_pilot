@@ -1,0 +1,13 @@
+installation:
+  version: 6.0.0-Beta.8
+  installDate: 2026-02-14T10:43:04.990Z
+  lastUpdated: 2026-02-14T10:43:04.990Z
+modules:
+  - name: core
+    version: 6.0.0-Beta.8
+    installDate: 2026-02-14T10:43:04.990Z
+    lastUpdated: 2026-02-14T10:43:04.990Z
+    source: built-in
+    npmPackage: null
+    repoUrl: null
+ides: []

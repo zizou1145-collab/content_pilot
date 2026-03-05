@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Environment — NEVER commit real secrets
+.env
+.env.local
+.env.production
+.env.*.local
+
+# Next.js
+frontend/.next/
+frontend/out/
+
+# Build outputs
+dist/
+build/
+
+# Uploads (user files, not code)
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Prisma generated client (regenerated on deploy)
+backend/node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/settings.json
+
+# Turbopack / Next.js cache
+.next/
+.turbo/
+
+# TypeScript
+*.tsbuildinfo

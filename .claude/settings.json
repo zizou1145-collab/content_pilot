@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(netstat -ano)",
+      "Bash(taskkill /F /PID 59216)",
+      "Bash(cmd /c \"taskkill /F /PID 59216\")",
+      "Bash(node -e \":*)",
+      "Bash(ls /c/Users/ZBOOK/Documents/Content_pilot/frontend/.env*)"
+    ]
+  }
+}

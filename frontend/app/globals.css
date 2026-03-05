@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+:root {
+  /* Modern SaaS palette — light background, white cards, soft borders */
+  --background: #F8FAFC;
+  --foreground: #0F172A;
+  --saas-bg: #F8FAFC;
+  --saas-fg: #0F172A;
+  --saas-muted: #64748B;
+  --saas-border: #E2E8F0;
+  --saas-card: #FFFFFF;
+  --saas-sidebar: #F1F5F9;
+  --saas-sidebar-hover: #E2E8F0;
+  --saas-header: #FFFFFF;
+  --saas-primary: #2563EB;
+  --saas-primary-hover: #1D4ED8;
+  --saas-success: #059669;
+  --saas-warning: #d97706;
+  --saas-danger: #dc2626;
+  --saas-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  /* SaaS theme colors */
+  --color-saas-bg: var(--saas-bg);
+  --color-saas-fg: var(--saas-fg);
+  --color-saas-muted: var(--saas-muted);
+  --color-saas-border: var(--saas-border);
+  --color-saas-card: var(--saas-card);
+  --color-saas-sidebar: var(--saas-sidebar);
+  --color-saas-sidebar-hover: var(--saas-sidebar-hover);
+  --color-saas-header: var(--saas-header);
+  --color-saas-primary: var(--saas-primary);
+  --color-saas-primary-hover: var(--saas-primary-hover);
+  --color-saas-success: var(--saas-success);
+  --color-saas-warning: var(--saas-warning);
+  --color-saas-danger: var(--saas-danger);
+  --shadow-saas: var(--saas-shadow);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+    --saas-bg: #0f172a;
+    --saas-fg: #f8fafc;
+    --saas-muted: #94a3b8;
+    --saas-border: #334155;
+    --saas-card: #1e293b;
+    --saas-sidebar: #1e293b;
+    --saas-sidebar-hover: #334155;
+    --saas-header: #1e293b;
+    --saas-primary: #3b82f6;
+    --saas-primary-hover: #60a5fa;
+  }
+}
+
+body {
+  background: var(--saas-bg);
+  color: var(--saas-fg);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/* RTL: dir and lang are set from locale in root layout (ar → rtl, en → ltr).
+   Use logical properties in components so one set of styles works for both:
+   - margin-inline-start/end (Tailwind: ms-*, me-*), padding-inline-* (ps-*, pe-*)
+   - text-align: start/end (Tailwind: text-start, text-end)
+   - inset-inline-* (start-*, end-*) for positioning
+   Flex/grid follow dir automatically; override only when needed below. */
+/* Card hover: lift + stronger shadow; smooth transitions for cards, buttons, sidebar */
+.card-hover {
+  transition: all 0.2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+}
+
+/* Button micro-interactions: smooth transitions and subtle lift on hover */
+.btn-hover {
+  transition: all 0.2s ease;
+}
+.btn-hover:hover {
+  transform: translateY(-2px);
+}
+
+/* Soft divider between dashboard sections */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(
+    to end,
+    transparent,
+    var(--saas-border) 15%,
+    var(--saas-border) 85%,
+    transparent
+  );
+  border: 0;
+  margin: 0;
+}
+
+@layer utilities {
+  [dir="rtl"] .flip-icon-inline {
+    transform: scaleX(-1);
+  }
+}

@@ -1,0 +1,120 @@
+// Content Pilot - Database Schema
+// Supports: users, subscriptions, projects, content plans, designs
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SubscriptionPlan {
+  Basic
+  Pro
+  Business
+}
+
+enum SubscriptionStatus {
+  active
+  cancelled
+  past_due
+}
+
+enum ContentType {
+  educational
+  promotional
+  introductory
+  success_story
+}
+
+model User {
+  id                   String             @id @default(uuid())
+  email                String             @unique
+  passwordHash         String             @map("password_hash")
+  name                 String?
+  locale               String             @default("ar") // ar | en
+  subscriptionPlan     SubscriptionPlan   @default(Basic) @map("subscription_plan")
+  subscriptionStatus   SubscriptionStatus @default(active) @map("subscription_status")
+  subscriptionEndsAt   DateTime?          @map("subscription_ends_at")
+  createdAt            DateTime           @default(now()) @map("created_at")
+  updatedAt            DateTime           @updatedAt @map("updated_at")
+
+  projects             Project[]
+}
+
+model Project {
+  id              String    @id @default(uuid())
+  userId          String    @map("user_id")
+  name            String
+  country         String
+  field           String    // مجال النشاط
+  description     String    @db.Text
+  strengths       String?   @db.Text   // JSON array or text
+  // Brand / design
+  logoUrl         String?   @map("logo_url")
+  brandColors     String?   @map("brand_colors") @db.Text // JSON: { primary, secondary, ... }
+  theme           String?   // minimal | bold | professional | custom
+  referencePostUrl String?  @map("reference_post_url")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  marketAnalyses  MarketAnalysis[]
+  contentPlans    ContentPlan[]
+  assets          Asset[]
+}
+
+model MarketAnalysis {
+  id            String   @id @default(uuid())
+  projectId     String   @map("project_id")
+  contentTypes  String?  @map("content_types") @db.Text  // JSON
+  postIdeas     String?  @map("post_ideas") @db.Text     // JSON
+  strategies    String?  @db.Text                        // JSON
+  rawResponse   String?  @map("raw_response") @db.Text
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model ContentPlan {
+  id          String   @id @default(uuid())
+  projectId   String   @map("project_id")
+  title       String?  // e.g. "March 2025"
+  month       Int
+  year        Int
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  items       ContentPlanItem[]
+}
+
+model ContentPlanItem {
+  id             String      @id @default(uuid())
+  contentPlanId  String      @map("content_plan_id")
+  publishDate    DateTime    @map("publish_date") @db.Date
+  postIdea       String      @map("post_idea") @db.Text
+  postCopy       String      @map("post_copy") @db.Text
+  contentType    ContentType @map("content_type")
+  objective      String?     @db.Text
+  orderIndex     Int         @default(0) @map("order_index")
+  createdAt      DateTime    @default(now()) @map("created_at")
+
+  contentPlan    ContentPlan @relation(fields: [contentPlanId], references: [id], onDelete: Cascade)
+  assets         Asset[]
+}
+
+model Asset {
+  id                  String   @id @default(uuid())
+  projectId           String   @map("project_id")
+  contentPlanItemId   String?  @map("content_plan_item_id")
+  kind                String   // logo | generated_post
+  filePath            String   @map("file_path")
+  mimeType            String?  @map("mime_type")
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  project             Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  contentPlanItem     ContentPlanItem?  @relation(fields: [contentPlanItemId], references: [id], onDelete: SetNull)
+}
