@@ -55,9 +55,9 @@ function IconChart() {
     </svg>
   );
 }
-function IconCheck() {
+function IconCheck({ className = "size-4 shrink-0" }: { className?: string }) {
   return (
-    <svg className="size-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
     </svg>
   );
