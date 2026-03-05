@@ -3,6 +3,7 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { config } from './config.js';
+import { prisma } from './lib/prisma.js';
 import { authRouter } from './routes/auth.js';
 import { projectsRouter } from './routes/projects.js';
 import { marketRouter } from './routes/market.js';
@@ -71,6 +72,15 @@ function startServer() {
 const delays = [0, 3000, 6000, 10000]; // first try, then retry after 3s, 6s, 10s
 
 (async () => {
+  // Verify database connection before accepting traffic
+  try {
+    await prisma.$connect();
+    console.log('Database connection established.');
+  } catch (err) {
+    console.error('Failed to connect to database:', err.message || err);
+    process.exit(1);
+  }
+
   for (let attempt = 0; attempt < delays.length; attempt++) {
     if (delays[attempt] > 0) {
       console.warn(`Port ${config.port} in use, retrying in ${delays[attempt] / 1000}s... (attempt ${attempt + 1}/${delays.length})`);
