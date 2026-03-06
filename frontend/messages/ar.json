@@ -3,6 +3,12 @@
     "name": "بايلوت المحتوى",
     "tagline": "إنشاء محتوى وسائل التواصل بمساعدة الذكاء الاصطناعي"
   },
+  "theme": {
+    "light": "فاتح",
+    "dark": "داكن",
+    "system": "النظام",
+    "ariaLabel": "تبديل المظهر"
+  },
   "nav": {
     "home": "الرئيسية",
     "login": "تسجيل الدخول",
@@ -72,6 +78,7 @@
     "kpiTotalProjects": "إجمالي المشاريع",
     "kpiContentPlans": "خطط المحتوى المُنشأة",
     "kpiPostDesigns": "تصاميم المنشورات المُنشأة",
+    "kpiThisMonthOfLimit": "هذا الشهر: {current} / {limit}",
     "kpiLastActivity": "آخر نشاط",
     "quickActions": "إجراءات سريعة",
     "quickActionNewProject": "إنشاء مشروع جديد",

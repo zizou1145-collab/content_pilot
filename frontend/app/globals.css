@@ -59,6 +59,37 @@
   }
 }
 
+/* User choice: force light or dark (class on html set by ThemeProvider) */
+html.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --saas-bg: #0f172a;
+  --saas-fg: #f8fafc;
+  --saas-muted: #94a3b8;
+  --saas-border: #334155;
+  --saas-card: #1e293b;
+  --saas-sidebar: #1e293b;
+  --saas-sidebar-hover: #334155;
+  --saas-header: #1e293b;
+  --saas-primary: #3b82f6;
+  --saas-primary-hover: #60a5fa;
+}
+
+html.light {
+  --background: #F8FAFC;
+  --foreground: #0F172A;
+  --saas-bg: #F8FAFC;
+  --saas-fg: #0F172A;
+  --saas-muted: #64748B;
+  --saas-border: #E2E8F0;
+  --saas-card: #FFFFFF;
+  --saas-sidebar: #F1F5F9;
+  --saas-sidebar-hover: #E2E8F0;
+  --saas-header: #FFFFFF;
+  --saas-primary: #2563EB;
+  --saas-primary-hover: #1D4ED8;
+}
+
 body {
   background: var(--saas-bg);
   color: var(--saas-fg);

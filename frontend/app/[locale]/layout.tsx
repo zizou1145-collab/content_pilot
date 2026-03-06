@@ -4,6 +4,7 @@ import { hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { AuthProvider } from "@/lib/auth-context";
+import { ThemeProvider } from "@/lib/theme";
 import { Auth401Handler } from "@/components/Auth401Handler";
 
 type Props = {
@@ -26,10 +27,12 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   return (
     <NextIntlClientProvider messages={messages}>
-      <AuthProvider>
-        <Auth401Handler />
-        {children}
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <Auth401Handler />
+          {children}
+        </AuthProvider>
+      </ThemeProvider>
     </NextIntlClientProvider>
   );
 }

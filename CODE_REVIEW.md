@@ -122,4 +122,93 @@
 
 ---
 
-*مراجعة الكود — الإصدار 1.0 | Content Pilot*
+## 9. ملاحظات إضافية (مراجعة متابعة)
+
+### 9.1 Frontend — اسم ملف الـ Middleware
+
+| الأولوية | الملف | الملاحظة | التوصية |
+|----------|-------|----------|----------|
+| **عالية** | `frontend/proxy.ts` | Next.js يبحث عن **middleware.ts** (أو `src/middleware.ts`) فقط. الملف الحالي باسم `proxy.ts` **لن يُنفَّذ** كـ middleware، لذا توجيه اللغة (locale) من next-intl قد لا يعمل كما يجب. | إعادة تسمية `proxy.ts` إلى **`middleware.ts`** في جذر مجلد `frontend/` حتى يتعرّف Next.js عليه ويشغّل next-intl. |
+
+### 9.2 Backend — أمان وتحميل
+
+- **Rate limiting:** غير موجود؛ يُفضّل إضافة حد لمعدل الطلبات على مسارات مثل `/api/v1/auth/login` و `/api/v1/auth/register` ومسارات التوليد (market، content-plans، designs) لتقليل إساءة الاستخدام والـ brute-force.
+- **تصميم designs:** تم تنفيذ `checkDesignsLimit` في `POST /designs/:projectId/generate` — مُطبَّق كما في المراجعة السابقة.
+- **ProjectDetailContent:** الملف لا يزال كبيراً (~1295 سطر). تم استخراج `MarketAnalysisSection` سابقاً؛ يُوصى باستخراج المزيد: مثلاً `ContentPlanSection`، `EditItemModal`، `DeletePlanModal`، وحوار حذف المشروع إلى مكونات منفصلة أو custom hooks (مثل `useProjectDetail`, `useContentPlans`) لتحسين القراءة والاختبار.
+
+### 9.3 اختبارات
+
+- لا توجد حاليماً اختبارات آلية (unit / integration / e2e). لإطلاق أكثر أماناً يُقترح على الأقل: اختبارات وحدة للـ limits والـ auth والـ validation، واختبار تكامل لـ API رئيسية (مثل تسجيل، إنشاء مشروع، حد المشاريع).
+
+---
+
+## 10. اقتراحات إضافات (Features & Tech)
+
+### 10.1 إضافات وظيفية مقترحة
+
+| الأولوية | الفكرة | الوصف |
+|----------|--------|--------|
+| **عالية** | نسخ احتياطي / استعادة المشاريع | تصدير مشروع كامل (بيانات + تحليلات + خطط) واستيراده لاحقاً أو نقل الحساب. |
+| **عالية** | قوالب مشاريع | حفظ مشروع كقالب (بدون بيانات حساسة) وإعادة استخدامه لمشاريع جديدة. |
+| **متوسطة** | تنبيهات وتذكيرات | تذكير بنشر منشور حسب تواريخ الخطة (إشعارات في التطبيق أو بريد لاحقاً). |
+| **متوسطة** | إحصائيات بسيطة | لوحة: عدد المشاريع، خطط هذا الشهر، تصاميم مستخدمة vs الحد، مع رسوم بيانية بسيطة. |
+| **متوسطة** | اختصار لوحة التحكم | في الـ Dashboard عرض آخر 3–5 مشاريع مع روابط سريعة + زر "مشروع جديد". |
+| **منخفضة** | تصدير الخطة كـ PDF | بالإضافة لـ Excel، تصدير الخطة الشهرية كـ PDF جاهز للطباعة أو المشاركة. |
+| **منخفضة** | دعم لغات إضافية | توسيع next-intl لدعم لغات أخرى (مثلاً fr، tr) حسب الطلب. |
+| **منخفضة** | وضع داكن/فاتح | تبديل theme (dark/light) مع حفظ التفضيل في localStorage أو في حساب المستخدم. |
+
+### 10.2 إضافات تقنية مقترحة
+
+| الأولوية | الإضافة | الوصف |
+|----------|---------|--------|
+| **عالية** | إعادة تسمية `proxy.ts` → `middleware.ts` | كما في 9.1؛ ضروري لتفعيل next-intl middleware. |
+| **عالية** | Rate limiting (Backend) | استخدام حزمة مثل `express-rate-limit` على مسارات Auth ومسارات التوليد (AI). |
+| **متوسطة** | هيدر أمان (Helmet) | إضافة `helmet` لـ Express لتحسين رؤوس HTTP الأمنية. |
+| **متوسطة** | اختبارات آلية | Jest أو Vitest للـ backend (limits، auth، validation)، واختبارات تكامل لـ API؛ اختياري: Playwright أو Cypress لـ e2e للواجهة. |
+| **متوسطة** | CI/CD | تشغيل الـ lint والاختبارات على كل commit أو PR (GitHub Actions أو غيره). |
+| **منخفضة** | هيكلة أنواع مشتركة | مشاركة أنواع TypeScript (مثل `ContentPlan`, `ProjectDetail`) بين frontend و backend عبر حزمة أو مسار مشترك إن أردتم توحيد التعريفات. |
+| **منخفضة** | Logging منظم | استبدال `console.log/error` بـ logger (مثل Pino) مع مستويات (info, warn, error) لتحسين التشغيل في الإنتاج. |
+
+### 10.3 ملخص تنفيذ سريع
+
+1. **فوراً:** إعادة تسمية `frontend/proxy.ts` إلى `frontend/middleware.ts`.
+2. **قريباً:** إضافة rate limiting على `/api/v1/auth/*` ومسارات التوليد؛ إضافة Helmet.
+3. **تحسين صيانة:** تقسيم `ProjectDetailContent` إلى أقسام أصغر و/أو custom hooks.
+4. **للمستقبل:** نسخ احتياطي/قوالب مشاريع، إحصائيات، تذكيرات، واختبارات آلية + CI.
+
+---
+
+## 11. التحقق الحالي (2025-03-06) | Current State Verification
+
+### 11.1 ما تم تنفيذه وتأكيده
+
+| البند | الحالة |
+|-------|--------|
+| **middleware.ts** | ✅ الملف `frontend/middleware.ts` موجود ويستخدم `next-intl/middleware` مع `routing`؛ توجيه اللغة يعمل. |
+| **JWT في production** | ✅ `config.js`: في `NODE_ENV=production` عدم تعيين `JWT_SECRET` يرمي خطأ عند البدء. |
+| **ErrorHandler + Prisma** | ✅ ربط P2025→404، P2003→400، P2002→409 و دعم `err.statusCode`. |
+| **Rate limiting** | ✅ `express-rate-limit`: مسار `/api/v1/auth` (15 طلب/15 دقيقة)، ومسار عام `/api/v1` (200/15 دقيقة) مع استثناء `/health`. |
+| **Helmet** | ✅ `helmet` مفعّل مع `contentSecurityPolicy: false` لتجنب كسر موارد الواجهة. |
+| **Dashboard fetchProjects/fetchStats** | ✅ دوال `fetchProjects(token)` و `fetchStats(token)` مستخرجة ومستخدمة في `useEffect` و `handleRetry`؛ لا تكرار للمنطق. |
+| **/api/v1/me/stats** | ✅ مسار جديد في `backend/src/routes/me.js` يعيد عدّ المشاريع والخطط والتصاميم والحدود؛ الواجهة تستدعيه من `DashboardContent` لعرض KPIs. |
+| **Theme (وضع داكن/فاتح)** | ✅ `ThemeProvider` في `[locale]/layout.tsx`، و`ThemeToggle` و `lib/theme.tsx`؛ سكربت في `app/layout.tsx` لتطبيق الثيم قبل الـ hydration لتقليل الوميض. |
+| **DeleteProjectModal** | ✅ مكوّن منفصل في `projects/[id]/components/DeleteProjectModal.tsx` مع دور الحوار وإمكانية الوصول. |
+| **MarketAnalysisSection** | ✅ مكوّن مستقل لتحليل السوق. |
+
+### 11.2 ما يزال مطلوباً أو مُوصى به
+
+| الأولوية | البند | ملاحظة |
+|----------|--------|--------|
+| **صيانة** | **ProjectDetailContent** | الملف لا يزال كبيراً (~1265 سطر). تم استخراج `MarketAnalysisSection` و `DeleteProjectModal`؛ يُوصى باستخراج المزيد: `ContentPlanSection`، حوارات تعديل/حذف عناصر الخطة، و/أو custom hooks (مثل `useProjectDetail`, `useContentPlans`) لتحسين القراءة والاختبار. |
+| **جودة** | **اختبارات آلية** | لا توجد حتى الآن unit/integration/e2e. يُوصى باختبارات للـ limits، auth، validation، واختبار تكامل لـ API رئيسية. |
+| **اختياري** | **توكن في httpOnly cookie** | لا يزال التوكن في `localStorage` (مقبول للمرحلة الحالية؛ نقل لاحقاً يقلل خطر XSS). |
+| **اختياري** | **تصدير Excel — اسم الملف** | التأكد من أن الـ backend يضع `Content-Disposition` باسم ملف آمن (بدون أحرف خاصة). |
+
+### 11.3 بنية سريعة
+
+- **Backend:** Express + Helmet + CORS + rate limit → auth/me/projects/market/content-plans/designs/export → errorHandler. اتصال Prisma عند البدء مع إعادة محاولة منفصلة للـ port.
+- **Frontend:** Next.js App Router مع `[locale]`، `middleware.ts` لـ next-intl، جذر التطبيق في `app/layout.tsx` (خطوط، locale/dir، سكربت الثيم)، و`[locale]/layout.tsx` (NextIntlClientProvider، ThemeProvider، AuthProvider، Auth401Handler). لا أخطاء lint في الملفات المُفحوصة.
+
+---
+
+*مراجعة الكود — الإصدار 1.2 | Content Pilot | 2025-03-06*

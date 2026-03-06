@@ -5,6 +5,7 @@ import { usePathname } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "@/i18n/navigation";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { useState, useRef, useEffect } from "react";
 
 const localeNames: Record<string, string> = { ar: "العربية", en: "English" };
@@ -214,6 +215,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </button>
           <div className="flex-1" />
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <a
               href={switchLocalePath}
               className="rounded-lg px-3 py-2 text-sm font-medium text-saas-muted transition-all duration-200 ease-[ease] hover:bg-saas-sidebar-hover hover:text-saas-fg"

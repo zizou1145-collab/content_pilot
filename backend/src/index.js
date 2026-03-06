@@ -1,10 +1,13 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { config } from './config.js';
 import { prisma } from './lib/prisma.js';
 import { authRouter } from './routes/auth.js';
+import { meRouter } from './routes/me.js';
 import { projectsRouter } from './routes/projects.js';
 import { marketRouter } from './routes/market.js';
 import { contentPlansRouter } from './routes/content-plans.js';
@@ -23,9 +26,31 @@ if (!config.openaiApiKey || config.openaiApiKey.trim() === '') {
 
 const app = express();
 
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({ origin: config.frontendUrl, credentials: true }));
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, '..', config.uploadDir)));
+
+// Rate limit: auth routes (login/register) — reduce brute-force risk
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 15,
+  message: { error: 'Too many attempts. Please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use('/api/v1/auth', authLimiter);
+
+// Rate limit: general API (per IP); skip health check for load balancers
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  message: { error: 'Too many requests. Please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => req.path === '/health',
+});
+app.use('/api/v1', apiLimiter);
 
 // Health check (no auth) — for load balancers / uptime checks
 app.get('/api/v1/health', (req, res) => res.status(200).json({ ok: true }));
@@ -34,6 +59,7 @@ app.get('/api/v1/health', (req, res) => res.status(200).json({ ok: true }));
 app.get('/', (req, res) => res.redirect(302, config.frontendUrl));
 
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/me', meRouter);
 app.use('/api/v1/projects', projectsRouter);
 app.use('/api/v1/market', marketRouter);
 app.use('/api/v1/content-plans', contentPlansRouter);

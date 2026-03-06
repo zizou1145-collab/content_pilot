@@ -87,6 +87,14 @@ function formatDate(iso: string, locale: string): string {
   }
 }
 
+type StatsResponse = {
+  projectsCount: number;
+  contentPlansThisMonth: number;
+  designsThisMonth: number;
+  plansLimit: number;
+  designsLimit: number;
+};
+
 /** Fetches projects list; returns either projects or error message. */
 async function fetchProjects(
   token: string
@@ -105,10 +113,25 @@ async function fetchProjects(
   }
 }
 
+/** Fetches dashboard stats (KPIs) for the current user. */
+async function fetchStats(
+  token: string
+): Promise<StatsResponse | null> {
+  try {
+    const res = await apiFetch("/api/v1/me/stats", { token });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data as StatsResponse;
+  } catch {
+    return null;
+  }
+}
+
 export function DashboardContent() {
   const t = useTranslations("dashboard");
   const { user, token } = useAuth();
   const [projects, setProjects] = useState<ProjectItem[] | null>(null);
+  const [stats, setStats] = useState<StatsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -120,15 +143,16 @@ export function DashboardContent() {
     let cancelled = false;
     setError(null);
     setLoading(true);
-    fetchProjects(token).then((result) => {
+    Promise.all([fetchProjects(token), fetchStats(token)]).then(([projectsResult, statsData]) => {
       if (cancelled) return;
-      if ("error" in result) {
-        setError(result.error === "Unauthorized" ? null : (result.error ?? t("error")));
+      if ("error" in projectsResult) {
+        setError(projectsResult.error === "Unauthorized" ? null : (projectsResult.error ?? t("error")));
         setProjects([]);
       } else {
-        setProjects(result.projects);
+        setProjects(projectsResult.projects);
         setError(null);
       }
+      if (statsData) setStats(statsData);
     }).finally(() => {
       if (!cancelled) setLoading(false);
     });
@@ -144,14 +168,15 @@ export function DashboardContent() {
       setLoading(false);
       return;
     }
-    fetchProjects(token).then((result) => {
-      if ("error" in result) {
-        setError(result.error === "Unauthorized" ? null : (result.error ?? t("error")));
+    Promise.all([fetchProjects(token), fetchStats(token)]).then(([projectsResult, statsData]) => {
+      if ("error" in projectsResult) {
+        setError(projectsResult.error === "Unauthorized" ? null : (projectsResult.error ?? t("error")));
         setProjects([]);
       } else {
-        setProjects(result.projects);
+        setProjects(projectsResult.projects);
         setError(null);
       }
+      if (statsData) setStats(statsData);
     }).finally(() => setLoading(false));
   };
 
@@ -159,9 +184,11 @@ export function DashboardContent() {
   const plan = user?.subscriptionPlan ?? "Basic";
   const status = user?.subscriptionStatus ?? "active";
   const statusLabel = status ? status.charAt(0).toUpperCase() + status.slice(1) : t("statusActive");
-  const totalProjects = projects?.length ?? 0;
-  const contentPlansCount = 0;
-  const postDesignsCount = 0;
+  const totalProjects = stats?.projectsCount ?? projects?.length ?? 0;
+  const contentPlansCount = stats?.contentPlansThisMonth ?? 0;
+  const postDesignsCount = stats?.designsThisMonth ?? 0;
+  const plansLimit = stats?.plansLimit;
+  const designsLimit = stats?.designsLimit;
   const lastActivity =
     projects && projects.length > 0
       ? formatDate(
@@ -219,6 +246,11 @@ export function DashboardContent() {
             <div>
               <p className="text-sm font-medium text-saas-muted">{t("kpiContentPlans")}</p>
               <p className="mt-1 text-2xl font-semibold text-saas-fg">{contentPlansCount}</p>
+              {typeof plansLimit === "number" && (
+                <p className="mt-0.5 text-xs text-saas-muted">
+                  {t("kpiThisMonthOfLimit", { current: contentPlansCount, limit: plansLimit })}
+                </p>
+              )}
             </div>
             <span
               className="relative flex size-10 shrink-0 items-center justify-center rounded-lg text-white transition-all duration-200 ease-[ease]"
@@ -239,6 +271,11 @@ export function DashboardContent() {
             <div>
               <p className="text-sm font-medium text-saas-muted">{t("kpiPostDesigns")}</p>
               <p className="mt-1 text-2xl font-semibold text-saas-fg">{postDesignsCount}</p>
+              {typeof designsLimit === "number" && (
+                <p className="mt-0.5 text-xs text-saas-muted">
+                  {t("kpiThisMonthOfLimit", { current: postDesignsCount, limit: designsLimit })}
+                </p>
+              )}
             </div>
             <span
               className="relative flex size-10 shrink-0 items-center justify-center rounded-lg text-white transition-all duration-200 ease-[ease]"

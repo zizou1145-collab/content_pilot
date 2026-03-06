@@ -3,6 +3,12 @@
     "name": "Content Pilot",
     "tagline": "AI-powered social media content creation"
   },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "ariaLabel": "Toggle theme"
+  },
   "nav": {
     "home": "Home",
     "login": "Log in",
@@ -72,6 +78,7 @@
     "kpiTotalProjects": "Total Projects",
     "kpiContentPlans": "Content Plans Generated",
     "kpiPostDesigns": "Post Designs Generated",
+    "kpiThisMonthOfLimit": "This month: {current} / {limit}",
     "kpiLastActivity": "Last Activity",
     "quickActions": "Quick Actions",
     "quickActionNewProject": "Create new project",
