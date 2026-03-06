@@ -38,7 +38,7 @@ export function HomeContent({ locale }: { locale: string }) {
               locale={otherLocale}
               className="text-sm font-medium text-saas-muted transition hover:text-saas-fg"
             >
-              {locale === "ar" ? t("switchToAr") : t("switchToEn")}
+              {locale === "ar" ? t("switchToEn") : t("switchToAr")}
             </Link>
           </div>
         </div>
@@ -258,9 +258,9 @@ function DashboardPreview() {
           </span>
         </div>
       </div>
-      <div className="flex min-h-[320px] sm:min-h-[360px]">
+      <div className="flex min-h-80 sm:min-h-90">
         {/* Sidebar */}
-        <aside className="flex w-[180px] shrink-0 flex-col border-r border-saas-border bg-saas-sidebar py-4">
+        <aside className="flex w-45 shrink-0 flex-col border-r border-saas-border bg-saas-sidebar py-4">
           <div className="mb-4 flex items-center gap-2 px-4">
             <span className="flex size-8 items-center justify-center rounded-lg bg-saas-primary text-xs font-semibold text-white">
               CP
@@ -372,7 +372,7 @@ function Step({
       <span className="mt-3 text-xs font-semibold text-saas-primary">
         {number}
       </span>
-      <p className="mt-1 max-w-[180px] text-sm font-medium text-saas-fg">
+      <p className="mt-1 max-w-45 text-sm font-medium text-saas-fg">
         {label}
       </p>
     </div>
